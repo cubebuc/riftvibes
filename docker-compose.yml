@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - rift_net
+
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      - db
+    networks:
+      - rift_net
+
+  frontend:
+    build: ./frontend
+    restart: always
+    depends_on:
+      - backend
+    networks:
+      - rift_net
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - frontend
+    networks:
+      - rift_net
+
+networks:
+  rift_net:
+    driver: bridge
