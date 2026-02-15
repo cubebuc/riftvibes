@@ -9,7 +9,7 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
-      - rift_net
+      - riftvibes_net
 
   backend:
     build: ./backend
@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     networks:
-      - rift_net
+      - riftvibes_net
 
   frontend:
     build: ./frontend
@@ -27,7 +27,7 @@ services:
     depends_on:
       - backend
     networks:
-      - rift_net
+      - riftvibes_net
 
   tunnel:
     image: cloudflare/cloudflared:latest
@@ -38,8 +38,8 @@ services:
     depends_on:
       - frontend
     networks:
-      - rift_net
+      - riftvibes_net
 
 networks:
-  rift_net:
+  riftvibes_net:
     driver: bridge
