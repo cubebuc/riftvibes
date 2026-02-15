@@ -1,13 +1,12 @@
 services:
-  db:
-    image: postgres:15-alpine
+  tunnel:
+    image: cloudflare/cloudflared:latest
     restart: always
+    command: tunnel --no-autoupdate run
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - frontend
     networks:
       - riftvibes_net
 
@@ -29,14 +28,15 @@ services:
     networks:
       - riftvibes_net
 
-  tunnel:
-    image: cloudflare/cloudflared:latest
+  db:
+    image: postgres:15-alpine
     restart: always
-    command: tunnel --no-autoupdate run
     environment:
-      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-    depends_on:
-      - frontend
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
     networks:
       - riftvibes_net
 
